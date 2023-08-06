@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Current Date and Time</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        .date-time-container {
+            margin-top: 5vh;
+            font-size: 2rem;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="date-time-container">{{ now }}</div>
+    <h1>date time formats</h1>
+    <table>
+        <tr>
+            <th>format</th>
+            <th>description</th>
+            <th>result</th>
+        </tr>
+    {% for d in datetime_list %}
+        <tr>
+            {% for r in d %}
+                <td>{{ r }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</body>
+</html>
