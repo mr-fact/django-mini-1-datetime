@@ -1,4 +1,6 @@
 from datetime import datetime
+
+import jdatetime
 import pytz
 
 from django.shortcuts import render, Http404
@@ -7,24 +9,12 @@ from django.views.generic import TemplateView
 import datetimenow
 
 
-class DateTimeNowView(TemplateView):
+class BaseDateTimeNowView(TemplateView):
     template_name = 'now.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        country_code = self.kwargs.get('country', None)
-        if country_code:
-            try:
-                time_zone = pytz.country_timezones[country_code.upper()][0]
-                now_datetime = datetime.now().astimezone(pytz.timezone(time_zone))
-            except Exception as e:
-                raise Http404(e)
-        else:
-            now_datetime = datetime.now()
-        context['country'] = country_code
-        context['now'] = now_datetime.strftime('%Y-%m-%d %H:%M:%S')
-        datetime_list = [
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.datetime_list = [
             ('%D', '(DATE)'),
             ('%s', '(date to seconds)'),
             ('%Y', '4-digit year (e.g., 2023)'),
@@ -45,5 +35,43 @@ class DateTimeNowView(TemplateView):
             ('%Z', 'Timezone name'),
             ('%z', 'UTC offset (e.g., +0000)'),
         ]
-        context['datetime_list'] = [[d[0], d[1], now_datetime.strftime(d[0])] for d in datetime_list]
+
+    def get_now(self, time_zone=None):
+        if time_zone:
+            return datetime.now().astimezone(pytz.timezone(time_zone))
+        return datetime.now()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        country_code = self.kwargs.get('country', None)
+        if country_code:
+            try:
+                country_code = country_code.upper()
+                time_zone = pytz.country_timezones[country_code][0]
+                now_datetime = self.get_now(time_zone)
+            except Exception as e:
+                raise Http404(e)
+        else:
+            now_datetime = self.get_now()
+        context['country'] = country_code
+        context['now'] = now_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        result = []
+        for d in self.datetime_list:
+            if '%' in now_datetime.strftime(d[0]):
+                result.append([d[1], d[0], ''])
+            else:
+                result.append([d[1], d[0], now_datetime.strftime(d[0])])
+        context['datetime_list'] = result
         return context
+
+
+class DateTimeNowView(BaseDateTimeNowView):
+    pass
+
+
+class JDateTimeNowView(BaseDateTimeNowView):
+    def get_now(self, time_zone=None):
+        if time_zone:
+            return jdatetime.datetime.now().astimezone(pytz.timezone(time_zone))
+        return jdatetime.datetime.now()
