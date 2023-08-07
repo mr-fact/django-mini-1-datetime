@@ -1,8 +1,10 @@
 from datetime import datetime
 import pytz
 
-from django.shortcuts import render
+from django.shortcuts import render, Http404
 from django.views.generic import TemplateView
+
+import datetimenow
 
 
 class DateTimeNowView(TemplateView):
@@ -13,11 +15,14 @@ class DateTimeNowView(TemplateView):
 
         country_code = self.kwargs.get('country', None)
         if country_code:
-            time_zone = pytz.country_timezones[country_code.upper()][0]
-            now_datetime = datetime.now().astimezone(pytz.timezone(time_zone))
+            try:
+                time_zone = pytz.country_timezones[country_code.upper()][0]
+                now_datetime = datetime.now().astimezone(pytz.timezone(time_zone))
+            except Exception as e:
+                raise Http404(e)
         else:
             now_datetime = datetime.now()
-
+        context['country'] = country_code
         context['now'] = now_datetime.strftime('%Y-%m-%d %H:%M:%S')
         datetime_list = [
             ('%D', '(DATE)'),

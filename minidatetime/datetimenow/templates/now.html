@@ -11,6 +11,10 @@
             padding: 0;
         }
         .date-time-container {
+            font-size: 2rem;
+            color: #333;
+        }
+        .country-name {
             margin-top: 5vh;
             font-size: 2rem;
             color: #333;
@@ -32,6 +36,7 @@
     </style>
 </head>
 <body>
+    <div class="country-name">{{ country }}</div>
     <div class="date-time-container">{{ now }}</div>
     <h1>date time formats</h1>
     <table>
@@ -40,12 +45,13 @@
             <th>description</th>
             <th>result</th>
         </tr>
-    {% for d in datetime_list %}
-        <tr>
-            {% for r in d %}
-                <td>{{ r }}</td>
-            {% endfor %}
-        </tr>
-    {% endfor %}
+        {% for d in datetime_list %}
+            <tr>
+                {% for r in d %}
+                    <td>{{ r }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+
 </body>
 </html>
